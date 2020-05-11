@@ -28,11 +28,12 @@ class LoginScreen extends StatelessWidget {
                             const EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 20.0),
                         child: Column(
                           children: <Widget>[
+                            SizedBox(height: 30,),
                             Align(
                               alignment: Alignment.center,
                               child: Image(
                                 image: AssetImage(
-                                  'assets/images/ic_launcher.png',
+                                  'assets/images/emart_appicon.png',
                                 ),
                                 height: 100.0,
                                 width: 100.0,
