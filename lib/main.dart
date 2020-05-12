@@ -6,16 +6,15 @@ import 'package:emart/src/Utils/EmartString.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-
 void main() {
   // FlutterStatusbarcolor.setStatusBarColor(colorCustom);
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget{
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
+    print("main fun");
     return MaterialApp(
       title: EmartString.appName,
       theme: ThemeData(
@@ -27,13 +26,14 @@ class MyApp extends StatelessWidget{
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home:  new Splash(),
+      home: new Splash(),
       routes: routes,
     );
   }
 }
+
 var routes = <String, WidgetBuilder>{
   "/splash": (BuildContext context) => Splash(),
-  "/login" : (BuildContext context) => LoginScreen(),
-  "/registration" : (BuildContext context) => RegistrationScreen(),
+  "/login": (BuildContext context) => LoginScreen(),
+  "/registration": (BuildContext context) => RegistrationScreen(),
 };
