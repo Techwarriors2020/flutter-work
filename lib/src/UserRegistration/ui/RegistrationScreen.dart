@@ -1,30 +1,51 @@
-import 'package:emart/src/Login/provider/validation/LoginValidation.dart';
-import 'package:emart/src/UserRegistration/provider/validation/RegstrationValidation.dart';
+import 'package:emart/src/LocalStorage/Preferences/SharedPref.dart';
+import 'package:emart/src/Login/provider/LoginProvider.dart';
+import 'package:emart/src/UserRegistration/data/model/RegistrationResponseModel.dart';
+import 'package:emart/src/UserRegistration/provider/RegstrationProvider.dart';
+import 'package:emart/src/Utils/AlertDialogWidgets.dart';
 import 'package:emart/src/Utils/EmartColor.dart';
+import 'package:emart/src/Utils/EmartNavigator.dart';
 import 'package:emart/src/Utils/EmartString.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class RegistrationScreen extends StatelessWidget {
+  RegistrationProvider provide;
+  void submitData(BuildContext context)  {
+    provide.getUserData().then((value) {
+      if (value) {
+        RegistrationResponseModel registrationResponseModel =
+            provide.getUSer();
+        SharedPref.savePrefStr(
+            SharedPref.emailId, registrationResponseModel.email);
+        String message = registrationResponseModel.message;
+        AlertDialogWidgets.showAlertWithTwoButtons(context, "REG", message);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     //final validationService = Provider.of<LoginValidation>(context);
-    return ChangeNotifierProvider<RegistrationValidation>(
-      create: (context) => RegistrationValidation(),
+    return ChangeNotifierProvider<RegistrationProvider>(
+      create: (context) => RegistrationProvider(),
       child: Scaffold(
         appBar: AppBar(
             automaticallyImplyLeading: true,
             title: Text(EmartString.userRegistration),
-            leading: IconButton(icon:Icon(Icons.arrow_back),
-              onPressed:() => Navigator.pop(context, false),
-            )
-        ),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context, false),
+            )),
         body: Container(
           color: EmartColor.bgColor,
-          child: Consumer<RegistrationValidation>(
+          child: Consumer<RegistrationProvider>(
             builder: (context, provider, child) {
+              provide = provider;
               return Padding(
                 padding: const EdgeInsets.fromLTRB(0.0, 20.0, 10.0, 0.0),
                 child: SingleChildScrollView(
@@ -32,22 +53,22 @@ class RegistrationScreen extends StatelessWidget {
                     children: <Widget>[
                       Padding(
                         padding:
-                        const EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 20.0),
+                            const EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 20.0),
                         child: Column(
                           children: <Widget>[
                             SizedBox(
-                              height: 20,
+                              height: 10,
                             ),
                             Container(
                               child: TextField(
                                 obscureText: false,
                                 decoration: InputDecoration(
                                   border: UnderlineInputBorder(),
-                                  labelText: 'Email',
-                                  errorText: provider.userName.error,
+                                  labelText: EmartString.email,
+                                  errorText: provider.emailId.error,
                                 ),
                                 onChanged: (String value) {
-                                  provider.changeUserName(value);
+                                  provider.validateEmailId(value);
                                 },
                               ),
                             ),
@@ -57,13 +78,17 @@ class RegistrationScreen extends StatelessWidget {
                             Container(
                               child: TextField(
                                 obscureText: false,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(10),
+                                ],
                                 decoration: InputDecoration(
                                   border: UnderlineInputBorder(),
-                                  labelText: 'Phone',
-                                  errorText: provider.userName.error,
+                                  labelText: EmartString.phone,
+                                  errorText: provider.mobileNumber.error,
                                 ),
                                 onChanged: (String value) {
-                                  provider.changeUserName(value);
+                                  provider.validateMobibleNumber(value);
                                 },
                               ),
                             ),
@@ -76,11 +101,11 @@ class RegistrationScreen extends StatelessWidget {
                                 obscureText: true,
                                 decoration: InputDecoration(
                                   border: UnderlineInputBorder(),
-                                  labelText: 'Password',
+                                  labelText: EmartString.password,
                                   errorText: provider.password.error,
                                 ),
                                 onChanged: (String value) {
-                                  provider.changePassword(value);
+                                  provider.validatePassword(value);
                                 },
                               ),
                             ),
@@ -92,11 +117,11 @@ class RegistrationScreen extends StatelessWidget {
                                 obscureText: true,
                                 decoration: InputDecoration(
                                   border: UnderlineInputBorder(),
-                                  labelText: 'Confirm password',
-                                  errorText: provider.password.error,
+                                  labelText: EmartString.confirmPassword,
+                                  errorText: provider.confirmPassword.error,
                                 ),
                                 onChanged: (String value) {
-                                  provider.changePassword(value);
+                                  provider.validateConfirmPassword(value);
                                 },
                               ),
                             ),
@@ -113,19 +138,24 @@ class RegistrationScreen extends StatelessWidget {
                                 ),
                                 onPressed: () => (!provider.isValid)
                                     ? null
-                                    : provider.submitData(context),
+                                    : submitData(context),
                                 color: EmartColor.appTheamColor,
                                 splashColor: Colors.purple,
                                 child: Align(
                                   alignment: Alignment.center,
-                                  child: Text(
-                                    EmartString.signUpSmall,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: 'AllerRegular',
-                                      fontSize: 20,
-                                    ),
-                                  ),
+                                  child: provider.isLoading()
+                                      ? CircularProgressIndicator(
+                                          backgroundColor: Colors.white,
+                                          strokeWidth: 2,
+                                        )
+                                      : Text(
+                                          EmartString.signUpSmall,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'AllerRegular',
+                                            fontSize: 20,
+                                          ),
+                                        ),
                                 ),
                               ),
                               //        ),

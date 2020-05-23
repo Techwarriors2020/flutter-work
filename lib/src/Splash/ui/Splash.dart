@@ -42,7 +42,7 @@ class SplashScreenState extends State<Splash> {
                       Center(
                         child: Image(
                           image: AssetImage(
-                            'assets/images/ic_launcher.png',
+                            'assets/images/emart_appicon.png',
                           ),
                           height: 100.0,
                           width: 100.0,

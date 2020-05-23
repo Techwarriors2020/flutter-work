@@ -1,15 +1,18 @@
 import 'package:emart/src/Login/ui/LoginScreen.dart';
 import 'package:emart/src/Splash/ui/Splash.dart';
+import 'package:emart/src/UserRegistration/provider/RegstrationProvider.dart';
 import 'package:emart/src/UserRegistration/ui/RegistrationScreen.dart';
 import 'package:emart/src/Utils/EmartColor.dart';
 import 'package:emart/src/Utils/EmartString.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   // FlutterStatusbarcolor.setStatusBarColor(colorCustom);
   runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   @override
