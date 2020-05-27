@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:emart/src/Constants/EmartApi.dart';
 import 'package:http/http.dart' as http;
 import 'package:emart/src/Constants/EmartError.dart';
 import 'package:emart/src/LocalStorage/Preferences/SharedPref.dart';
@@ -10,9 +10,9 @@ import 'package:emart/src/Utils/ValidationItem.dart';
 import 'package:flutter/material.dart';
 import 'package:emart/src/Utils/Validation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
 
 class RegistrationProvider extends ChangeNotifier {
-
   RegistrationResponseModel user;
   String errorMessage;
   bool loading = false;
@@ -53,14 +53,18 @@ class RegistrationProvider extends ChangeNotifier {
     //encode Map to JSON
     var body = json.encode(data);
     setLoading(true);
-    var result =  await FutureCallToServer.getRequest<RegistrationResponseModel, Null>(body);
+    try {
+      var result = await FutureCallToServer.requestToServer<
+          RegistrationResponseModel, Null>(body, EmartApi.registration);
       setLoading(false);
-    setUser(result);
-    print("RESULT="+result.email);
+      setUser(result);
+      print("RESULT=" + result.email);
+    } catch (e) {
+      setLoading(false);
+    }
+
     return isUser();
   }
-
-
 
   bool get isValid {
     if (_emailId.value != null &&
@@ -148,7 +152,6 @@ class RegistrationProvider extends ChangeNotifier {
     }
     notifyListeners();
   }
-
 
   void setLoading(value) {
     loading = value;

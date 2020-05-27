@@ -11,20 +11,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:toast/toast.dart';
 
 // ignore: must_be_immutable
 class RegistrationScreen extends StatelessWidget {
   RegistrationProvider provide;
-  void submitData(BuildContext context)  {
+
+  void submitData(BuildContext context) {
     provide.getUserData().then((value) {
       if (value) {
-        RegistrationResponseModel registrationResponseModel =
-            provide.getUSer();
+        RegistrationResponseModel registrationResponseModel = provide.getUSer();
         SharedPref.savePrefStr(
             SharedPref.emailId, registrationResponseModel.email);
         String message = registrationResponseModel.message;
         AlertDialogWidgets.showAlertWithTwoButtons(context, "REG", message);
-      }
+      } else
+        Toast.show("Something went wrong", context,
+            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
     });
   }
 

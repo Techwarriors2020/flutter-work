@@ -1,5 +1,7 @@
 import 'package:emart/src/LocalStorage/Preferences/SharedPref.dart';
+import 'package:emart/src/Login/data/model/LoginResponseModel.dart';
 import 'package:emart/src/Login/provider/LoginProvider.dart';
+import 'package:emart/src/Utils/AlertDialogWidgets.dart';
 import 'package:emart/src/Utils/EmartColor.dart';
 import 'package:emart/src/Utils/EmartNavigator.dart';
 import 'package:emart/src/Utils/EmartString.dart';
@@ -7,19 +9,36 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
 
 class LoginScreen extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() {
     return LoginScreenState();
   }
-
 }
 
-class LoginScreenState extends State<LoginScreen>{
+class LoginScreenState extends State<LoginScreen> {
   TextEditingController emailIdController;
   String emailIdPref;
+  LoginProvider provide;
+
+  void submitData(BuildContext context) {
+    provide.getUserData().then((value) {
+      if (value) {
+        LoginResponseModel loginResponseModel = provide.getUSer();
+        String message = loginResponseModel.message;
+        if (loginResponseModel.code.endsWith("5000"))
+          EmartNavigator.goToLandingScreen(context);
+        else
+          Toast.show(message, context,
+              gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        //AlertDialogWidgets.showAlertWithTwoButtons(context, "Login", message);
+      } else
+        Toast.show("Something went wrong", context,
+            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+    });
+  }
 
   @override
   void initState() {
@@ -40,181 +59,185 @@ class LoginScreenState extends State<LoginScreen>{
   Widget build(BuildContext context) {
     getFromPref();
     return ChangeNotifierProvider<LoginProvider>(
-          create: (context) => LoginProvider(),
-          child: Scaffold(
-            body: Container(
-              color: EmartColor.bgColor,
-              child: Consumer<LoginProvider>(
-                builder: (context, provider, child) {
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(0.0, 20.0, 10.0, 0.0),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(
-                                30.0, 20.0, 30.0, 20.0),
-                            child: Column(
-                              children: <Widget>[
-                                SizedBox(height: 30),
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: Image(
-                                    image: AssetImage(
-                                      'assets/images/emart_appicon.png',
-                                    ),
-                                    height: 100.0,
-                                    width: 100.0,
-                                  ),
+      create: (context) => LoginProvider(),
+      child: Scaffold(
+        body: Container(
+          color: EmartColor.bgColor,
+          child: Consumer<LoginProvider>(
+            builder: (context, provider, child) {
+              provide = provider;
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(0.0, 20.0, 10.0, 0.0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 20.0),
+                        child: Column(
+                          children: <Widget>[
+                            SizedBox(height: 30),
+                            Align(
+                              alignment: Alignment.center,
+                              child: Image(
+                                image: AssetImage(
+                                  'assets/images/emart_appicon.png',
                                 ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Container(
-                                  child: TextField(
-
-                                    controller: emailIdController,
-                                    obscureText: false,
-                                    decoration: InputDecoration(
-                                      border: UnderlineInputBorder(),
-                                      labelText: EmartString.emailPhone,
-                                      errorText: provider.emailId.error,
-
-                                    ),
-                                    onChanged: (String value) {
-                                      provider.validateEmailId(value);
-                                    },
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Container(
-                                  child: TextField(
-                                    obscureText: true,
-                                    decoration: InputDecoration(
-                                      border: UnderlineInputBorder(),
-                                      labelText: EmartString.password,
-                                      errorText: provider.password.error,
-                                    ),
-                                    onChanged: (String value) {
-                                      provider.validatePassword(value);
-                                    },
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                InkWell(
-                                  onTap: () {},
-                                  child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Text(
-                                      EmartString.forgotPassword,
-                                      style: TextStyle(
-                                        color: EmartColor.appTheamColor,
-                                        fontSize: 15,
-                                        fontFamily: 'AllerRegular',
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 25,
-                                ),
-
-                                Container(
-                                  height: 40,
-                                  child: RaisedButton(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6.0),
-                                    ),
-                                    onPressed: () => (!provider.isValid)
-                                        ? null
-                                        : provider.submitData(context),
-                                    color: EmartColor.appTheamColor,
-                                    splashColor: Colors.purple,
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        EmartString.login,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'AllerRegular',
-                                          fontSize: 20,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 30.0,
-                                ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    EmartString.dontHaveAccountYet,
-                                    style: TextStyle(
-                                      //color: Colors.grey,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 15.0,
-                                ),
-                                //InkWell(
-                                Container(
-                                  height: 40,
-                                  child: RaisedButton(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6.0),
-                                    ),
-                                    onPressed: () =>
-                                        EmartNavigator.goToRegistration(
-                                            context),
-                                    color: EmartColor.appTheamColor,
-                                    splashColor: Colors.purple,
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        EmartString.signUp,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'AllerRegular',
-                                          fontSize: 20,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  //        ),
-                                ),
-                              ],
+                                height: 100.0,
+                                width: 100.0,
+                              ),
                             ),
-                          ),
-                        ],
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Container(
+                              child: TextField(
+                                //controller: emailIdController,
+                                obscureText: false,
+                                decoration: InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                  labelText: EmartString.emailPhone,
+                                  errorText: provider.emailId.error,
+                                ),
+                                onChanged: (String value) {
+                                  provider.validateEmailId(value);
+                                },
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Container(
+                              child: TextField(
+                                obscureText: true,
+                                decoration: InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                  labelText: EmartString.password,
+                                  errorText: provider.password.error,
+                                ),
+                                onChanged: (String value) {
+                                  provider.validatePassword(value);
+                                },
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            InkWell(
+                              onTap: () {},
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  EmartString.forgotPassword,
+                                  style: TextStyle(
+                                    color: EmartColor.appTheamColor,
+                                    fontSize: 15,
+                                    fontFamily: 'AllerRegular',
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 25,
+                            ),
+
+                            Container(
+                              height: 40,
+                              child: RaisedButton(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6.0),
+                                ),
+                                onPressed: () => (!provider.isValid)
+                                    ? null
+                                    : submitData(context),
+                                color: EmartColor.appTheamColor,
+                                splashColor: Colors.purple,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: provider.isLoading()
+                                      ? CircularProgressIndicator(
+                                          backgroundColor: Colors.white,
+                                          strokeWidth: 2,
+                                        )
+                                      : Text(
+                                          EmartString.login,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'AllerRegular',
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 30.0,
+                            ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                EmartString.dontHaveAccountYet,
+                                style: TextStyle(
+                                  //color: Colors.grey,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 15.0,
+                            ),
+                            //InkWell(
+                            Container(
+                              height: 40,
+                              child: RaisedButton(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6.0),
+                                ),
+                                onPressed: () =>
+                                    EmartNavigator.goToRegistration(context),
+                                color: EmartColor.appTheamColor,
+                                splashColor: Colors.purple,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    EmartString.signUp,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'AllerRegular',
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              //        ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
-        /*);
+        ),
+      ),
+      /*);
       },*/
     );
   }
-    getFromPref() async {
-  final  _preferences = await SharedPreferences.getInstance();
+
+  getFromPref() async {
+    final _preferences = await SharedPreferences.getInstance();
     setState(() {
-      emailIdPref =  _preferences.getString(SharedPref.emailId);
+      emailIdPref = _preferences.getString(SharedPref.emailId);
       emailIdController.value = TextEditingValue(
         text: emailIdPref,
-        selection: TextSelection(baseOffset: emailIdPref.length, extentOffset: emailIdPref.length),
+        selection: TextSelection(
+            baseOffset: emailIdPref.length, extentOffset: emailIdPref.length),
         composing: TextRange.empty,
-
       );
-     // emailIdController = TextEditingController(text: emailIdPref);
+      // emailIdController = TextEditingController(text: emailIdPref);
     });
   }
 }

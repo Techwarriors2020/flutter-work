@@ -1,9 +1,19 @@
+import 'dart:convert';
+
+import 'package:emart/src/Constants/EmartApi.dart';
 import 'package:emart/src/Constants/EmartError.dart';
+import 'package:emart/src/Login/data/model/LoginResponseModel.dart';
+import 'package:emart/src/NetworkCall/FutureCallToServer.dart';
 import 'package:emart/src/Utils/Validation.dart';
 import 'package:emart/src/Utils/ValidationItem.dart';
 import 'package:flutter/material.dart';
 
 class LoginProvider extends ChangeNotifier {
+
+
+  LoginResponseModel user;
+  String errorMessage;
+  bool loading = false;
 
   ValidationItem _emailId = ValidationItem(null, null);
   ValidationItem _password = ValidationItem(null, null);
@@ -13,14 +23,14 @@ class LoginProvider extends ChangeNotifier {
   ValidationItem get emailId => _emailId;
 
   ValidationItem get password => _password;
-
+/*
   void submitData(BuildContext context){
     print("emailId= ${emailId.value},Password=${password.value}");
 
     //loginValidated = true;
    // notifyListeners();
 
-  }
+  }*/
   bool get isValid{
     if(_emailId.value!=null && _password.value != null)
       return true;
@@ -51,5 +61,59 @@ class LoginProvider extends ChangeNotifier {
       _password = ValidationItem(value, EmartError.uiError["passLengthValidationError"]);
     }
     notifyListeners();
+  }
+
+  Future<bool> getUserData() async {
+    Map data =
+   // {"email":"jatashankar@wisepromo.com", "password": "000000"};
+    {
+      "email": _emailId.value,
+      "password": _password.value,
+    };
+    //encode Map to JSON
+    var body = json.encode(data);
+    setLoading(true);
+    try {
+      var result = await FutureCallToServer.requestToServer<LoginResponseModel, Null>(body, EmartApi.login);
+      setLoading(false);
+      setUser(result);
+      print("RESULT="+result.message);
+    }
+    catch(e){
+      setLoading(false);
+    }
+
+    return isUser();
+  }
+
+  void setLoading(value) {
+    loading = value;
+    notifyListeners();
+  }
+
+  bool isLoading() {
+    return loading;
+  }
+
+  void setUser(value) {
+    user = value;
+    notifyListeners();
+  }
+
+  LoginResponseModel getUSer() {
+    return user;
+  }
+
+  void setMessage(value) {
+    errorMessage = value;
+    notifyListeners();
+  }
+
+  String getMessage() {
+    return errorMessage;
+  }
+
+  bool isUser() {
+    return user != null ? true : false;
   }
 }

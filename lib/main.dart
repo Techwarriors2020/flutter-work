@@ -1,3 +1,4 @@
+import 'package:emart/src/Landing/ui/LandingScreen.dart';
 import 'package:emart/src/Login/ui/LoginScreen.dart';
 import 'package:emart/src/Splash/ui/Splash.dart';
 import 'package:emart/src/UserRegistration/provider/RegstrationProvider.dart';
@@ -39,4 +40,5 @@ var routes = <String, WidgetBuilder>{
   "/splash": (BuildContext context) => Splash(),
   "/login": (BuildContext context) => LoginScreen(),
   "/registration": (BuildContext context) => RegistrationScreen(),
+  "/landing": (BuildContext context) => LandingScreen(),
 };

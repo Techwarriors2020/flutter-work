@@ -1,15 +1,17 @@
 
 import 'dart:convert';
 
+import 'package:emart/src/Constants/EmartApi.dart';
+import 'package:emart/src/Login/data/model/LoginResponseModel.dart';
 import 'package:emart/src/UserRegistration/data/model/RegistrationResponseModel.dart';
 import 'package:http/http.dart' as http;
 
 class FutureCallToServer{
-  static Future<T> getRequest<T, K>(String body) async {
+  static Future<T> requestToServer<T, K>(String body, String url) async {
     print("entered");
     final response = await http
         .post(
-        "https://emart-api-app.herokuapp.com/user/register",
+        url,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -22,6 +24,7 @@ class FutureCallToServer{
     } else {
       // If that call was not successful, throw an error.
       throw Exception('Failed to load post');
+
     }
      }
 
@@ -32,6 +35,9 @@ class FutureCallToServer{
         return _fromJsonList<K>(json) as T;
       } else if (T == RegistrationResponseModel) {
         return RegistrationResponseModel.fromJson(json) as T;
+      }
+      else if (T == LoginResponseModel) {
+        return LoginResponseModel.fromJson(json) as T;
       }
 
      // print("MODEL DATA"+registrationResponseModel.email);

@@ -8,4 +8,8 @@ class EmartNavigator {
   static void goToRegistration(BuildContext context) {
     Navigator.pushNamed(context, "/registration");
   }
+
+  static void goToLandingScreen(BuildContext context) {
+    Navigator.pushNamed(context, "/landing");
+  }
 }
